@@ -8,6 +8,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Simplicity**: Prefer minimal dependencies and straightforward implementations.
 - **Offline-first**: All functionality must work without network access after initial load.
 
+## Git Workflow
+
+**IMPORTANT**: Never push directly to `main`. Always create a feature branch and open a pull request for review.
+
+1. Create a feature branch: `git checkout -b feature/description`
+2. Make commits on the feature branch
+3. Push the branch: `git push -u origin feature/description`
+4. Create a pull request via `gh pr create`
+5. Wait for review and approval before merging
+
 ## Project Overview
 
 Study Buddy is a Progressive Web Application (PWA) built with TypeScript and Vite. It is designed to work completely offline with no backend server beyond static file hosting. All data persistence is handled client-side using two storage systems:
