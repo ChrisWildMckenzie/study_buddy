@@ -12,10 +12,6 @@ interface StudyBuddyDB extends DBSchema {
     };
     indexes: { 'by-date': number };
   };
-  settings: {
-    key: string;
-    value: any;
-  };
   sqliteData: {
     key: string;
     value: Uint8Array;
@@ -33,11 +29,6 @@ export async function initDB(): Promise<IDBPDatabase<StudyBuddyDB>> {
       if (!db.objectStoreNames.contains('notes')) {
         const notesStore = db.createObjectStore('notes', { keyPath: 'id' });
         notesStore.createIndex('by-date', 'updatedAt');
-      }
-
-      // Create settings store
-      if (!db.objectStoreNames.contains('settings')) {
-        db.createObjectStore('settings');
       }
 
       // Create SQLite data store (v2)
@@ -76,16 +67,6 @@ export async function getAllNotes() {
 export async function deleteNote(id: string) {
   const db = await getDB();
   await db.delete('notes', id);
-}
-
-export async function saveSetting(key: string, value: any) {
-  const db = await getDB();
-  await db.put('settings', value, key);
-}
-
-export async function getSetting(key: string) {
-  const db = await getDB();
-  return db.get('settings', key);
 }
 
 // SQLite data storage helpers

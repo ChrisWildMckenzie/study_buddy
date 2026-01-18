@@ -1,4 +1,5 @@
 import { getAllTags } from '../storage/tags';
+import { html, raw, attr } from '../utils/html';
 
 export interface TagSelectorOptions {
   containerId: string;
@@ -28,15 +29,15 @@ export class TagSelector {
     const allTags = getAllTags();
     const selectedTagsArray = Array.from(this.selectedTags);
 
-    this.container.innerHTML = `
+    this.container.innerHTML = html`
       <div class="tag-selector">
         <div class="selected-tags">
-          ${selectedTagsArray.map(tag => `
+          ${raw(selectedTagsArray.map(tag => html`
             <span class="tag-chip">
-              ${escapeHtml(tag)}
-              <button type="button" class="tag-remove" data-tag="${escapeHtml(tag)}">&times;</button>
+              ${tag}
+              <button type="button" class="tag-remove" data-tag="${attr(tag)}">&times;</button>
             </span>
-          `).join('')}
+          `).join(''))}
         </div>
 
         <div class="tag-input-group">
@@ -50,21 +51,21 @@ export class TagSelector {
         </div>
 
         <datalist id="available-tags">
-          ${allTags.map(tag => `
-            <option value="${escapeHtml(tag.tagName)}">
-          `).join('')}
+          ${raw(allTags.map(tag => html`
+            <option value="${attr(tag.tagName)}">
+          `).join(''))}
         </datalist>
 
-        ${allTags.length > 0 ? `
+        ${raw(allTags.length > 0 ? html`
           <div class="suggested-tags">
             <small>Suggestions:</small>
-            ${allTags.filter(tag => !this.selectedTags.has(tag.tagName)).slice(0, 5).map(tag => `
-              <button type="button" class="tag-suggestion" data-tag="${escapeHtml(tag.tagName)}">
-                ${escapeHtml(tag.tagName)}
+            ${raw(allTags.filter(tag => !this.selectedTags.has(tag.tagName)).slice(0, 5).map(tag => html`
+              <button type="button" class="tag-suggestion" data-tag="${attr(tag.tagName)}">
+                ${tag.tagName}
               </button>
-            `).join('')}
+            `).join(''))}
           </div>
-        ` : ''}
+        ` : '')}
       </div>
     `;
 
@@ -151,8 +152,3 @@ export class TagSelector {
   }
 }
 
-function escapeHtml(text: string): string {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}

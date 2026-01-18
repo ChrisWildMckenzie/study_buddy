@@ -6,6 +6,8 @@ import { renderHomePage } from './pages/home';
 import { renderQuestionTypesPage } from './pages/questionTypes';
 import { renderSingleAnswerListPage } from './pages/singleAnswerList';
 import { renderSingleAnswerFormPage } from './pages/singleAnswerForm';
+import { renderMultiChoiceListPage } from './pages/multiChoiceList';
+import { renderMultiChoiceFormPage } from './pages/multiChoiceForm';
 import './style.css';
 
 // Register service worker for PWA
@@ -37,6 +39,9 @@ async function initApp() {
     registerRoute('/questions/single_answer', renderSingleAnswerListPage);
     registerRoute('/questions/single_answer/add', () => renderSingleAnswerFormPage());
     registerRoute('/questions/single_answer/edit/:id', (params) => renderSingleAnswerFormPage(params?.id));
+    registerRoute('/questions/multi_choice', renderMultiChoiceListPage);
+    registerRoute('/questions/multi_choice/add', () => renderMultiChoiceFormPage());
+    registerRoute('/questions/multi_choice/edit/:id', (params) => renderMultiChoiceFormPage(params?.id));
 
     // Initialize router
     initRouter();

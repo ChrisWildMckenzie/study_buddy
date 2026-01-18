@@ -1,6 +1,10 @@
 import initSqlJs, { Database, SqlJsStatic } from 'sql.js';
 import { saveSQLiteData, loadSQLiteData } from './indexeddb';
 
+// SQL parameter types that SQLite accepts
+export type SqlValue = string | number | null | Uint8Array;
+export type SqlParams = SqlValue[];
+
 let SQL: SqlJsStatic | null = null;
 let db: Database | null = null;
 
@@ -66,7 +70,8 @@ export async function initSQLite(): Promise<Database> {
 
     db.run(`
       INSERT OR IGNORE INTO question_types (type_code, description) VALUES
-        ('single_answer', 'Single correct one-word or short answer');
+        ('single_answer', 'Single correct one-word or short answer'),
+        ('multi_choice', 'Multiple choice question with one or more correct answers');
     `);
 
     // Core questions table - minimal essential data only
@@ -140,6 +145,40 @@ export async function initSQLite(): Promise<Database> {
         CHECK (question_type = 'single_answer')
       );
     `);
+
+    // Multi-choice questions - parallel structure for this question type
+    db.run(`
+      CREATE TABLE IF NOT EXISTS multi_choice_questions (
+        question_id TEXT NOT NULL,
+        question_type TEXT NOT NULL DEFAULT 'multi_choice',
+        question_text TEXT NOT NULL,
+        shuffle_options INTEGER DEFAULT 0,
+        allow_multiple_selection INTEGER DEFAULT 0,
+        PRIMARY KEY (question_id, question_type),
+        FOREIGN KEY (question_id, question_type) REFERENCES questions(question_id, question_type) ON DELETE CASCADE,
+        FOREIGN KEY (question_type) REFERENCES question_types(type_code),
+        CHECK (question_type = 'multi_choice')
+      );
+    `);
+
+    // Multi-choice options - one-to-many relationship with questions
+    db.run(`
+      CREATE TABLE IF NOT EXISTS multi_choice_options (
+        option_id TEXT PRIMARY KEY,
+        question_id TEXT NOT NULL,
+        question_type TEXT NOT NULL DEFAULT 'multi_choice',
+        option_text TEXT NOT NULL,
+        is_correct INTEGER NOT NULL DEFAULT 0,
+        display_order INTEGER NOT NULL,
+        FOREIGN KEY (question_id, question_type) REFERENCES multi_choice_questions(question_id, question_type) ON DELETE CASCADE,
+        CHECK (question_type = 'multi_choice')
+      );
+    `);
+
+    db.run(`
+      CREATE INDEX IF NOT EXISTS idx_multi_choice_options_question
+      ON multi_choice_options(question_id, question_type);
+    `);
   }
 
   return db;
@@ -181,14 +220,16 @@ export async function importDB(data: Uint8Array): Promise<void> {
 }
 
 // Execute query with auto-save
-export async function execAndSave(sql: string, params?: any[]): Promise<void> {
+export async function execAndSave(sql: string, params?: SqlParams): Promise<void> {
   const database = getDB();
   database.run(sql, params);
   await saveDB();
 }
 
-// Query helper
-export function query(sql: string, params?: any[]): any[] {
+// Query helper - returns array of row objects
+// Uses any internally since SQL results are dynamically shaped
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function query<T = any>(sql: string, params?: SqlParams): T[] {
   const database = getDB();
   const results = database.exec(sql, params);
 
@@ -196,11 +237,12 @@ export function query(sql: string, params?: any[]): any[] {
 
   const { columns, values } = results[0];
   return values.map(row => {
-    const obj: any = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const obj: Record<string, any> = {};
     columns.forEach((col, idx) => {
       obj[col] = row[idx];
     });
-    return obj;
+    return obj as T;
   });
 }
 

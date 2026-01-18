@@ -15,6 +15,8 @@ declare module 'virtual:pwa-register' {
 }
 
 // sql.js types (minimal declarations for what we use)
+// These types match the actual sql.js library API
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare module 'sql.js' {
   export interface SqlJsStatic {
     Database: new (data?: ArrayLike<number>) => Database;
@@ -38,3 +40,4 @@ declare module 'sql.js' {
 
   export default function initSqlJs(config?: SqlJsConfig): Promise<SqlJsStatic>;
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */

@@ -6,6 +6,7 @@ import {
   type SingleAnswerQuestion
 } from '../storage/singleAnswerQuestions';
 import { TagSelector } from '../components/tagSelector';
+import { html } from '../utils/html';
 
 let tagSelector: TagSelector | null = null;
 
@@ -28,7 +29,7 @@ export function renderSingleAnswerFormPage(questionId?: string): void {
   const title = isEditing ? 'Edit Question' : 'Add New Question';
   const initialTags = existingQuestion?.tags.map(t => t.tagName) || [];
 
-  app.innerHTML = `
+  app.innerHTML = html`
     <div class="container">
       <div class="page-header">
         <a href="#/questions/single_answer" class="back-link">&larr; Back to Questions</a>

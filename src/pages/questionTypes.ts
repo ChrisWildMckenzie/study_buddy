@@ -1,4 +1,5 @@
 import { query } from '../storage/sqlite';
+import { html, raw } from '../utils/html';
 
 export function renderQuestionTypesPage(): void {
   const app = document.getElementById('app');
@@ -7,7 +8,7 @@ export function renderQuestionTypesPage(): void {
   // Fetch available question types from database
   const questionTypes = query('SELECT type_code, description FROM question_types ORDER BY type_code');
 
-  const typesList = questionTypes.map(type => `
+  const typesList = questionTypes.map(type => html`
     <li class="question-type-item">
       <a href="#/questions/${type.type_code}" class="question-type-link">
         <div class="question-type-code">${type.type_code}</div>
@@ -16,7 +17,7 @@ export function renderQuestionTypesPage(): void {
     </li>
   `).join('');
 
-  app.innerHTML = `
+  app.innerHTML = html`
     <div class="container">
       <div class="page-header">
         <a href="#/" class="back-link">&larr; Back</a>
@@ -26,7 +27,7 @@ export function renderQuestionTypesPage(): void {
       <p>Select a question type to manage:</p>
 
       <ul class="question-types-list">
-        ${typesList}
+        ${raw(typesList)}
       </ul>
     </div>
   `;

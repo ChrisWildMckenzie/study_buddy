@@ -1,13 +1,24 @@
 import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
-import markdown from "@eslint/markdown";
-import css from "@eslint/css";
-import { defineConfig } from "eslint/config";
+import noUnsanitized from "eslint-plugin-no-unsanitized";
 
-export default defineConfig([
-  { files: ["**/*.{js,mjs,cjs,ts,mts,cts}"], plugins: { js }, extends: ["js/recommended"], languageOptions: { globals: globals.browser } },
-  tseslint.configs.recommended,
-  { files: ["**/*.md"], plugins: { markdown }, language: "markdown/commonmark", extends: ["markdown/recommended"] },
-  { files: ["**/*.css"], plugins: { css }, language: "css/css", extends: ["css/recommended"] },
-]);
+export default tseslint.config(
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  noUnsanitized.configs.recommended,
+  {
+    files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
+    languageOptions: {
+      globals: globals.browser
+    },
+    rules: {
+      "no-unsanitized/property": ["error", {
+        escape: { taggedTemplates: ["html"] }
+      }]
+    }
+  },
+  {
+    ignores: ["dist/**", "node_modules/**"]
+  }
+);
