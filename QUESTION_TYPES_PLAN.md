@@ -56,17 +56,16 @@ tags (shared - many-to-many via question_tags)
 **Interface**: Includes `tags: Tag[]` array
 **UI**: Uses `TagSelector` component from `src/components/tagSelector.ts`
 
-## Planned Question Types
+### multi_choice ✅ IMPLEMENTED
+**Use case**: Multiple choice with one or more correct answers. Supports both "pick one" (radio) and "tick all that apply" (checkbox) modes.
 
-### multi_choice ⏳ PLANNED
-**Use case**: Multiple choice with exactly one correct answer (e.g., "What is 2+2? A) 3 B) 4 C) 5" → B)
-
-**Planned tables**:
+**Tables**:
 ```
 multi_choice_questions
 ├── question_id, question_type (composite PK)
 ├── question_text
-└── shuffle_options (boolean)
+├── shuffle_options (boolean)
+└── allow_multiple_selection (boolean)
 
 multi_choice_options
 ├── option_id (GUID PK)
@@ -77,10 +76,16 @@ multi_choice_options
 ```
 
 **Constraints**:
-- Exactly one option must have is_correct = 1
 - At least 2 options required
+- If allow_multiple_selection = 0: exactly one option must have is_correct = 1
+- If allow_multiple_selection = 1: at least one option must have is_correct = 1
 
-**Module**: `src/storage/multiChoiceQuestions.ts` (future)
+**Module**: `src/storage/multiChoiceQuestions.ts`
+**Functions**: create, get, getAll, update, delete
+**Interface**: Includes `options: MultiChoiceOption[]` and `tags: Tag[]` arrays
+**UI**: Uses `TagSelector` component, dynamic options editor with add/remove
+
+## Planned Question Types
 
 ### multi_select ⏳ PLANNED
 **Use case**: "Name 5 concepts out of 7" type questions, select multiple correct answers

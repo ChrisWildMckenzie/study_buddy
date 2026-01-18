@@ -1,12 +1,12 @@
-import { getAllSingleAnswerQuestions, deleteSingleAnswerQuestion } from '../storage/singleAnswerQuestions';
+import { getAllMultiChoiceQuestions, deleteMultiChoiceQuestion } from '../storage/multiChoiceQuestions';
 import { navigate } from '../router';
 import { html, raw } from '../utils/html';
 
-export function renderSingleAnswerListPage(): void {
+export function renderMultiChoiceListPage(): void {
   const app = document.getElementById('app');
   if (!app) return;
 
-  const questions = getAllSingleAnswerQuestions();
+  const questions = getAllMultiChoiceQuestions();
 
   const questionsList = questions.length === 0
     ? '<p class="empty-message">No questions yet. Create your first question!</p>'
@@ -15,6 +15,8 @@ export function renderSingleAnswerListPage(): void {
           <div class="question-content">
             <div class="question-text">${q.questionText}</div>
             <div class="question-meta">
+              <span class="option-count">${q.options.length} options</span>
+              <span class="selection-mode">${q.allowMultipleSelection ? 'Multiple answers' : 'Single answer'}</span>
               ${raw(q.tags.length > 0 ? html`
                 <div class="question-tags">
                   ${raw(q.tags.map(tag => html`<span class="tag-chip">${tag.tagName}</span>`).join(''))}
@@ -34,7 +36,7 @@ export function renderSingleAnswerListPage(): void {
     <div class="container">
       <div class="page-header">
         <a href="#/questions" class="back-link">&larr; Back to Question Types</a>
-        <h1>Single Answer Questions</h1>
+        <h1>Multiple Choice Questions</h1>
       </div>
 
       <div class="page-actions">
@@ -45,33 +47,30 @@ export function renderSingleAnswerListPage(): void {
     </div>
   `;
 
-  // Add event listener for add button
   const addBtn = document.getElementById('add-question-btn');
   if (addBtn) {
     addBtn.addEventListener('click', () => {
-      navigate('/questions/single_answer/add');
+      navigate('/questions/multi_choice/add');
     });
   }
 
-  // Add event listeners for edit buttons
   const editBtns = document.querySelectorAll('.edit-btn');
   editBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const questionId = (btn as HTMLElement).dataset.id;
       if (questionId) {
-        navigate(`/questions/single_answer/edit/${questionId}`);
+        navigate(`/questions/multi_choice/edit/${questionId}`);
       }
     });
   });
 
-  // Add event listeners for delete buttons
   const deleteBtns = document.querySelectorAll('.delete-btn');
   deleteBtns.forEach(btn => {
     btn.addEventListener('click', async () => {
       const questionId = (btn as HTMLElement).dataset.id;
       if (questionId && confirm('Are you sure you want to delete this question?')) {
-        await deleteSingleAnswerQuestion(questionId);
-        renderSingleAnswerListPage(); // Re-render the page
+        await deleteMultiChoiceQuestion(questionId);
+        renderMultiChoiceListPage();
       }
     });
   });

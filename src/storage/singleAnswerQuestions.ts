@@ -1,4 +1,4 @@
-import { getDB, saveDB, query, execAndSave, generateGUID } from './sqlite';
+import { getDB, saveDB, query, execAndSave, generateGUID, SqlParams } from './sqlite';
 import { setQuestionTags, getQuestionTags, type Tag } from './tags';
 
 export interface SingleAnswerQuestion {
@@ -153,7 +153,7 @@ export async function updateSingleAnswerQuestion(questionId: string, data: {
   // Update single_answer_config table
   if (data.correctAnswer !== undefined || data.caseSensitive !== undefined || data.allowPartialMatch !== undefined) {
     const updates: string[] = [];
-    const params: any[] = [];
+    const params: SqlParams = [];
 
     if (data.correctAnswer !== undefined) {
       updates.push('correct_answer = ?');
